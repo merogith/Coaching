@@ -84,6 +84,9 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 560; line-height: 1.18; let
 .nav__links { display: flex; gap: 24px; }
 .nav__links a { font-size: .92rem; color: var(--muted); font-weight: 500; }
 .nav__links a:hover { color: var(--text); }
+.nav__links a.is-active { color: var(--accent); }
+/* skip-link lands on <main> without drawing a focus box */
+main[tabindex="-1"]:focus { outline: none; }
 .nav__tools { display: flex; align-items: center; gap: 10px; }
 .iconbtn { display: grid; place-items: center; height: 36px; min-width: 36px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-size: .82rem; font-weight: 600; transition: border-color .2s, color .2s; }
 .iconbtn:hover { border-color: var(--accent); color: var(--accent); }
