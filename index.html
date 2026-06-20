@@ -25,12 +25,27 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%232f6b4f'/><text x='50' y='68' font-family='Georgia,serif' font-size='44' fill='%23faf8f3' text-anchor='middle'>ME</text></svg>" />
 
   <script>try{var t=localStorage.getItem("theme");if(t==="dark"||(!t&&window.matchMedia&&matchMedia("(prefers-color-scheme:dark)").matches)){document.documentElement.setAttribute("data-theme","dark");}}catch(e){}</script>
+  <noscript><style>.reveal{opacity:1!important;transform:none!important}</style></noscript>
+  <meta name="theme-color" content="#faf8f3" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#141418" media="(prefers-color-scheme: dark)" />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="fonts.css" />
 
   <link rel="stylesheet" href="styles.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    "name": "Meriç Erler — Money Coaching",
+    "description": "One-to-one financial coaching in Berlin, in English or Turkish. Coaching and education, not regulated financial advice.",
+    "url": "https://merogith.github.io/Coaching/",
+    "areaServed": "Berlin",
+    "availableLanguage": ["English", "Turkish"],
+    "priceRange": "Free intro call",
+    "provider": { "@type": "Person", "name": "Meriç Erler", "email": "mailto:mericerler@gmail.com" }
+  }
+  </script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -42,7 +57,7 @@
         <span class="nav__mark">ME</span>
         <span class="nav__name">Meriç · Money coaching</span>
       </a>
-      <nav class="nav__links" aria-label="Primary">
+      <nav class="nav__links" id="navLinks" aria-label="Primary">
         <a href="#foryou">Is it for you?</a>
         <a href="#approach">Approach</a>
         <a href="#how">How it works</a>
@@ -57,12 +72,12 @@
           <svg class="icon-moon" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
         </button>
         <a class="btn btn--warm" href="#book">Book a call</a>
-        <button class="burger" id="navBurger" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
+        <button class="burger" id="navBurger" aria-controls="navLinks" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
       </div>
     </div>
   </header>
 
-  <main id="main">
+  <main id="main" tabindex="-1">
     <span id="top"></span>
 
     <!-- ===== HERO ===== -->

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://merogith.github.io/Coaching/sitemap.xml
