@@ -30,15 +30,29 @@
   var burger = document.getElementById("navBurger");
   var links = document.querySelector(".nav__links");
   if (burger && links) {
+    var closeMenu = function () {
+      links.classList.remove("is-open");
+      burger.setAttribute("aria-expanded", "false");
+    };
     burger.addEventListener("click", function () {
       var open = links.classList.toggle("is-open");
       burger.setAttribute("aria-expanded", String(open));
     });
     links.querySelectorAll("a").forEach(function (a) {
-      a.addEventListener("click", function () {
-        links.classList.remove("is-open");
-        burger.setAttribute("aria-expanded", "false");
-      });
+      a.addEventListener("click", closeMenu);
+    });
+    /* Close on Escape, and on a click/tap outside the menu */
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && links.classList.contains("is-open")) {
+        closeMenu();
+        burger.focus();
+      }
+    });
+    document.addEventListener("click", function (e) {
+      if (links.classList.contains("is-open") &&
+          !links.contains(e.target) && !burger.contains(e.target)) {
+        closeMenu();
+      }
     });
   }
 
