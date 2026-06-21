@@ -121,6 +121,14 @@ main[tabindex="-1"]:focus { outline: none; }
 .fcard h3 { font-size: 1.16rem; margin-bottom: 8px; }
 .fcard p { color: var(--muted); font-size: .98rem; }
 
+/* ===== Testimonials ===== */
+.testimonials { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 30px; }
+.tcard { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); display: flex; flex-direction: column; }
+.tcard blockquote { margin: 0; font-size: 1.02rem; color: var(--text); }
+.tcard blockquote::before { content: "\201C"; color: var(--accent); font-weight: 700; }
+.tcard figcaption { margin-top: 14px; font-size: .9rem; color: var(--muted); font-weight: 600; }
+.testimonials-note { margin-top: 20px; font-size: .9rem; color: var(--muted); }
+
 /* ===== Approach principles ===== */
 .principles { display: grid; gap: 18px; margin-top: 30px; }
 .pitem { display: grid; grid-template-columns: 30px 1fr; gap: 16px; align-items: start; }
@@ -194,7 +202,7 @@ main[tabindex="-1"]:focus { outline: none; }
 
 /* ===== Responsive ===== */
 @media (max-width: 820px) {
-  .foryou, .book__grid, .outcomes { grid-template-columns: 1fr; }
+  .foryou, .book__grid, .outcomes, .testimonials { grid-template-columns: 1fr; }
   .bio { grid-template-columns: 1fr; gap: 18px; }
   .bio__photo { width: 120px; height: 120px; }
 }
