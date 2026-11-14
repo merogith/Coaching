@@ -3,7 +3,9 @@
 A standalone, static website for one-to-one money coaching in Berlin, in
 English and Turkish. Vanilla HTML/CSS/JS, no build step.
 
-**Live:** https://merogith.github.io/Coaching/ · **Türkçe:** https://merogith.github.io/Coaching/tr/
+[English site](https://merogith.github.io/Coaching/) · [Türkçe](https://merogith.github.io/Coaching/tr/)
+
+The two pages use the same layout, theme controls, and booking flow. Switch languages from the header to compare them.
 
 ## Structure
 
@@ -39,4 +41,3 @@ python3 -m http.server 8000
 ---
 
 Financial coaching and education — not regulated financial advice.
-Part of [merogith.github.io/Portfolio](https://merogith.github.io/Portfolio/).
