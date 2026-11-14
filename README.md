@@ -1,4 +1,4 @@
-# Meriç Erler — Financial Coaching
+# Financial Coaching — Bilingual Website
 
 A standalone, static website for one-to-one money coaching in Berlin, in
 English and Turkish. Vanilla HTML/CSS/JS, no build step.
