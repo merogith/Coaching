@@ -5,19 +5,32 @@
 (function () {
   "use strict";
   var root = document.documentElement;
+  var isTR = (root.lang || "").toLowerCase().indexOf("tr") === 0;
 
   /* Theme: saved choice, else system preference (shares the key with the portfolio) */
-  var saved = localStorage.getItem("theme");
-  var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  var saved;
+  try { saved = localStorage.getItem("theme"); } catch (_error) { /* use system preference */ }
+  if (saved !== "light" && saved !== "dark") saved = null;
+  var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
   root.setAttribute("data-theme", saved || (prefersDark ? "dark" : "light"));
 
   var toggle = document.getElementById("themeToggle");
   if (toggle) {
+    var updateThemeLabel = function () {
+      var dark = root.getAttribute("data-theme") === "dark";
+      toggle.setAttribute("aria-pressed", String(dark));
+      toggle.setAttribute("aria-label", isTR
+        ? (dark ? "Açık temaya geç" : "Koyu temaya geç")
+        : (dark ? "Switch to light theme" : "Switch to dark theme"));
+    };
+    updateThemeLabel();
     toggle.addEventListener("click", function () {
       var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
       root.setAttribute("data-theme", next);
-      localStorage.setItem("theme", next);
+      try { localStorage.setItem("theme", next); } catch (_error) { /* keep this page usable */ }
+      updateThemeLabel();
     });
+    toggle.hidden = false;
   }
 
   /* Sticky nav shadow */
@@ -30,16 +43,31 @@
   var burger = document.getElementById("navBurger");
   var links = document.querySelector(".nav__links");
   if (burger && links) {
+    root.classList.add("menu-ready");
+    var setMenuLabel = function (open) {
+      burger.setAttribute("aria-label", isTR
+        ? (open ? "Menüyü kapat" : "Menüyü aç")
+        : (open ? "Close menu" : "Open menu"));
+    };
     var closeMenu = function () {
       links.classList.remove("is-open");
       burger.setAttribute("aria-expanded", "false");
+      setMenuLabel(false);
     };
     burger.addEventListener("click", function () {
       var open = links.classList.toggle("is-open");
       burger.setAttribute("aria-expanded", String(open));
+      setMenuLabel(open);
     });
     links.querySelectorAll("a").forEach(function (a) {
-      a.addEventListener("click", closeMenu);
+      a.addEventListener("click", function () {
+        var target = document.querySelector(a.getAttribute("href"));
+        closeMenu();
+        if (target) {
+          target.setAttribute("tabindex", "-1");
+          target.focus({ preventScroll: true });
+        }
+      });
     });
     /* Close on Escape, and on a click/tap outside the menu */
     document.addEventListener("keydown", function (e) {
@@ -58,6 +86,8 @@
 
   /* Reveal on scroll */
   var revealEls = document.querySelectorAll(".reveal");
+  // Content stays visible until this enhancement is ready to animate it.
+  root.classList.add("reveal-ready");
   if ("IntersectionObserver" in window) {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
@@ -93,43 +123,78 @@
      Falls back to a normal POST if JS or fetch is unavailable. */
   var form = document.querySelector("form.book");
   if (form && window.fetch) {
-    var isTR = (document.documentElement.lang || "").toLowerCase().indexOf("tr") === 0;
     var msg = {
       ok: isTR
-        ? "Teşekkürler — mesajın bana ulaştı. En kısa sürede bir zaman önerisiyle döneceğim."
-        : "Thank you — your message reached me. I'll reply soon with a time that works.",
+        ? "İsteğin Formspree tarafından kabul edildi. Bir zaman belirlemek için e-postayla yanıt bekleyebilirsin. Henüz kesinleşmiş bir randevun yok."
+        : "Your request was accepted by Formspree. Look out for an email reply to agree a time. Your appointment is not scheduled yet.",
       err: isTR
-        ? "Bir şeyler ters gitti. Lütfen doğrudan mericerler@gmail.com adresine yaz."
-        : "Something went wrong. Please email me directly at mericerler@gmail.com."
+        ? "İsteğin gönderildiğini doğrulayamadık. Bilgilerin burada duruyor; yeniden deneyebilir veya aşağıdaki e-posta bağlantısını kullanabilirsin."
+        : "We couldn’t confirm that your request was sent. Your details are still here; try again or use the email link below.",
+      pending: isTR ? "İsteğin gönderiliyor…" : "Sending your request…",
+      again: isTR ? "Yeni bir istek yaz" : "Write another request"
     };
+    var sending = false;
+    var status = document.createElement("p");
+    status.className = "form-note form-status";
+    status.setAttribute("role", "status");
+    status.setAttribute("aria-live", "polite");
+    status.setAttribute("tabindex", "-1");
+    form.appendChild(status);
     form.addEventListener("submit", function (e) {
       e.preventDefault();
+      if (sending || !form.reportValidity()) return;
+      sending = true;
       var btn = form.querySelector('button[type="submit"]');
       var label = btn ? btn.textContent : "";
+      form.setAttribute("aria-busy", "true");
+      status.classList.remove("form-error");
+      status.textContent = msg.pending;
       if (btn) { btn.disabled = true; btn.textContent = isTR ? "Gönderiliyor…" : "Sending…"; }
-      fetch(form.action, {
+      var controller = window.AbortController ? new AbortController() : null;
+      var timeout;
+      var expiry = new Promise(function (_resolve, reject) {
+        timeout = setTimeout(function () {
+          if (controller) controller.abort();
+          reject(new Error("request timeout"));
+        }, 15000);
+      });
+      var request = fetch(form.action, {
         method: "POST",
         body: new FormData(form),
-        headers: { Accept: "application/json" }
-      })
+        headers: { Accept: "application/json" },
+        signal: controller ? controller.signal : undefined
+      });
+      Promise.race([request, expiry])
         .then(function (res) {
           if (!res.ok) throw new Error("bad status");
-          var note = document.createElement("p");
-          note.className = "form-note";
-          note.setAttribute("role", "status");
-          note.style.color = "var(--accent)";
-          note.style.fontWeight = "600";
-          note.textContent = msg.ok;
-          form.replaceWith(note);
+          form.querySelector(".book__grid").hidden = true;
+          if (btn) btn.hidden = true;
+          status.textContent = msg.ok;
+          var again = document.createElement("button");
+          again.type = "button";
+          again.className = "btn btn--ghost";
+          again.textContent = msg.again;
+          again.addEventListener("click", function () {
+            form.reset();
+            form.querySelector(".book__grid").hidden = false;
+            if (btn) btn.hidden = false;
+            status.textContent = "";
+            again.remove();
+            document.getElementById("cname").focus();
+          });
+          form.appendChild(again);
+          status.focus();
         })
         .catch(function () {
+          status.classList.add("form-error");
+          status.textContent = msg.err;
+          status.focus();
+        })
+        .finally(function () {
+          clearTimeout(timeout);
+          sending = false;
+          form.removeAttribute("aria-busy");
           if (btn) { btn.disabled = false; btn.textContent = label; }
-          var err = form.querySelector(".form-error") || document.createElement("p");
-          err.className = "form-note form-error";
-          err.setAttribute("role", "alert");
-          err.style.color = "var(--warm)";
-          err.textContent = msg.err;
-          form.appendChild(err);
         });
     });
   }
